@@ -4,6 +4,7 @@ import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid,
     Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
+import InfoTooltip from './InfoTooltip';
 
 export default function PeriodComparison() {
     const { isDark } = useTheme();
@@ -79,23 +80,35 @@ export default function PeriodComparison() {
     }
 
     if (!data || !data.current || !data.previous) {
-        return null;
+        return (
+            <div className={`rounded-xl border p-6 transition-all duration-300 ${
+                isDark 
+                    ? 'bg-[#11111f] border-[#1a1a2e]' 
+                    : 'bg-white border-gray-200 shadow-sm'
+            }`}>
+                <div className="flex items-center justify-center h-48">
+                    <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                        Нет данных для сравнения
+                    </p>
+                </div>
+            </div>
+        );
     }
 
     const chartData = [
         {
             name: 'Скорость (SP)',
-            Текущие: data.current.avg_velocity,
-            Ранние: data.previous.avg_velocity,
+            Текущие: data.current.avg_velocity || 0,
+            Ранние: data.previous.avg_velocity || 0,
         },
         {
             name: 'Задач закрыто',
-            Текущие: data.current.total_tasks,
-            Ранние: data.previous.total_tasks,
+            Текущие: data.current.total_tasks || 0,
+            Ранние: data.previous.total_tasks || 0,
         },
     ];
 
-    const isUp = data.comparison.velocity_change === 'up';
+    const isUp = data.comparison?.velocity_change === 'up';
 
     return (
         <div className={`rounded-xl border p-6 transition-all duration-300 ${
@@ -104,42 +117,31 @@ export default function PeriodComparison() {
                 : 'bg-white border-gray-200 shadow-sm'
         }`}>
             <div className="flex items-center justify-between mb-4">
-                <div>
+                <div className="flex items-center gap-2">
                     <h3 className={`text-sm font-semibold ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                         📊 Сравнение периодов
                     </h3>
-                    <p className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-400'} mt-0.5`}>
-                        {data.current.sprint_count} спринтов vs {data.previous.sprint_count} спринтов
-                    </p>
+                    <InfoTooltip content="Сравнение текущих и ранних спринтов. Показывает динамику скорости и количества задач.">
+                        <span className="text-xs cursor-help text-gray-400 hover:text-gray-300">ⓘ</span>
+                    </InfoTooltip>
                 </div>
                 <div className={`px-3 py-1 rounded-lg text-xs font-medium ${
                     isUp 
                         ? 'bg-green-500/10 text-green-500 border border-green-500/20'
                         : 'bg-red-500/10 text-red-500 border border-red-500/20'
                 }`}>
-                    {isUp ? '↑' : '↓'} {Math.abs(data.comparison.velocity_percent)}% 
+                    {isUp ? '↑' : '↓'} {Math.abs(data.comparison?.velocity_percent || 0)}% 
                     {isUp ? ' рост' : ' падение'}
                 </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Сравнительный график */}
                 <div>
                     <ResponsiveContainer width="100%" height={180}>
                         <BarChart data={chartData} layout="vertical" margin={{ top: 10, right: 30, left: 20, bottom: 10 }}>
                             <CartesianGrid strokeDasharray="3 3" stroke={isDark ? '#1a1a2e' : '#e5e7eb'} horizontal={false} />
-                            <XAxis 
-                                type="number"
-                                stroke={isDark ? '#6b6b8b' : '#9ca3af'} 
-                                fontSize={10}
-                            />
-                            <YAxis 
-                                type="category" 
-                                dataKey="name"
-                                stroke={isDark ? '#6b6b8b' : '#9ca3af'} 
-                                fontSize={10}
-                                width={80}
-                            />
+                            <XAxis type="number" stroke={isDark ? '#6b6b8b' : '#9ca3af'} fontSize={10} />
+                            <YAxis type="category" dataKey="name" stroke={isDark ? '#6b6b8b' : '#9ca3af'} fontSize={10} width={80} />
                             <Tooltip
                                 contentStyle={{
                                     background: isDark ? '#1a1a2e' : '#ffffff',
@@ -155,30 +157,29 @@ export default function PeriodComparison() {
                     </ResponsiveContainer>
                 </div>
 
-                {/* Цифры */}
                 <div className="grid grid-cols-2 gap-2">
                     <div className={`p-3 rounded-lg ${isDark ? 'bg-[#1a1a2e]' : 'bg-gray-100'}`}>
                         <p className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>Текущие спринты</p>
                         <p className={`text-lg font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                            {data.current.avg_velocity} SP
+                            {data.current?.avg_velocity || 0} SP
                         </p>
                         <p className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
-                            {data.current.total_tasks} задач
+                            {data.current?.total_tasks || 0} задач
                         </p>
                     </div>
                     <div className={`p-3 rounded-lg ${isDark ? 'bg-[#1a1a2e]' : 'bg-gray-100'}`}>
                         <p className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>Ранние спринты</p>
                         <p className={`text-lg font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                            {data.previous.avg_velocity} SP
+                            {data.previous?.avg_velocity || 0} SP
                         </p>
                         <p className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
-                            {data.previous.total_tasks} задач
+                            {data.previous?.total_tasks || 0} задач
                         </p>
                     </div>
                     <div className={`col-span-2 p-3 rounded-lg ${isDark ? 'bg-[#1a1a2e]' : 'bg-gray-100'}`}>
                         <p className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>Изменение скорости</p>
                         <p className={`text-lg font-bold ${isUp ? 'text-green-500' : 'text-red-500'}`}>
-                            {isUp ? '+' : ''}{data.comparison.velocity_percent}%
+                            {isUp ? '+' : ''}{data.comparison?.velocity_percent || 0}%
                         </p>
                     </div>
                 </div>

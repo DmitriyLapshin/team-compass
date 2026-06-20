@@ -21,6 +21,7 @@ import AnimatedCounter from './components/AnimatedCounter';
 import InfoTooltip from './components/InfoTooltip';
 import ZoomControls from './components/ZoomControls';
 import FullscreenButton from './components/FullscreenButton';
+import PlanVsActual from './components/PlanVsActual';
 import { useTheme } from './context/ThemeContext';
 
 export default function Dashboard() {
@@ -646,6 +647,11 @@ export default function Dashboard() {
             {/* MoM */}
             <div className="mt-6 col-span-1 lg:col-span-2">
                 <MonthOverMonth />
+            </div>
+
+            {/* План vs Факт */}
+            <div className="mt-6 col-span-1 lg:col-span-2">
+                <PlanVsActual projectId={filters.project} />
             </div>
 
             {/* Monte Carlo Simulation */}

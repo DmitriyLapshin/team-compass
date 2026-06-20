@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../context/ThemeContext';
+import InfoTooltip from './InfoTooltip';
 
 export default function Anomalies() {
     const { isDark } = useTheme();
@@ -28,6 +29,11 @@ export default function Anomalies() {
             setLoading(false);
         }
     };
+
+    // Отладка
+    console.log('Anomalies loading:', loading);
+    console.log('Anomalies data:', data);
+    console.log('Anomalies error:', error);
 
     if (loading) {
         return (
@@ -74,7 +80,7 @@ export default function Anomalies() {
         );
     }
 
-    if (!data || data.total_anomalies === 0) {
+    if (!data || data.total_anomalies === 0 || data.total_anomalies === undefined) {
         return (
             <div className={`rounded-xl border p-6 transition-all duration-300 ${
                 isDark 

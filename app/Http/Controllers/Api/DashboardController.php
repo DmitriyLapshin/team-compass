@@ -7,6 +7,7 @@ use App\Models\Sprint;
 use App\Models\Release;
 use App\Models\Incident;
 use App\Models\Task;
+use App\Models\Project;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -15,9 +16,21 @@ class DashboardController extends Controller
     public function metrics(Request $request): JsonResponse
     {
         $period = $request->get('period', '6');
-        $project = $request->get('project', 'all');
+        $projectKey = $request->get('project', 'all');
 
-        $sprints = Sprint::orderBy('id', 'asc')->get();
+        $projectId = null;
+        if ($projectKey !== 'all') {
+            $project = Project::where('key', $projectKey)->first();
+            if ($project) {
+                $projectId = $project->id;
+            }
+        }
+
+        $sprintsQuery = Sprint::orderBy('id', 'asc');
+        if ($projectId) {
+            $sprintsQuery->where('project_id', $projectId);
+        }
+        $sprints = $sprintsQuery->get();
         
         $sprintData = $sprints->map(function ($sprint) {
             return [
@@ -35,7 +48,11 @@ class DashboardController extends Controller
         $forecastSprints = Sprint::forecastSprints($backlogPoints, 5);
         $forecastWeeks = round($forecastSprints * 2, 1);
 
-        $releases = Release::orderBy('released_at', 'asc')->get();
+        $releasesQuery = Release::orderBy('released_at', 'asc');
+        if ($projectId) {
+            $releasesQuery->where('project_id', $projectId);
+        }
+        $releases = $releasesQuery->get();
             
         $releaseData = $releases->map(function ($release) {
             return [
@@ -68,7 +85,7 @@ class DashboardController extends Controller
             'release_chart' => $releaseData,
             'active_filters' => [
                 'period' => $period,
-                'project' => $project,
+                'project' => $projectKey,
             ],
         ]);
     }

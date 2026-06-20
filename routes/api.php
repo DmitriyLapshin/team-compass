@@ -7,6 +7,14 @@ use App\Http\Controllers\Api\MonteCarloController;
 use App\Http\Controllers\Api\YandexTrackerController;
 use App\Http\Controllers\Api\HealthCheckController;
 use App\Http\Controllers\Api\JiraController;
+use App\Http\Controllers\Api\ProjectController;
+use App\Http\Controllers\Api\ProjectPlanController;
+
+// Планы проектов
+Route::get('/project-plans', [ProjectPlanController::class, 'index']);
+Route::post('/project-plans', [ProjectPlanController::class, 'store']);
+Route::put('/project-plans/{plan}', [ProjectPlanController::class, 'update']);
+Route::delete('/project-plans/{plan}', [ProjectPlanController::class, 'destroy']);
 
 // Health Check
 Route::get('/health', [HealthCheckController::class, 'check']);
@@ -22,6 +30,12 @@ Route::get('/compare-periods', [DashboardController::class, 'comparePeriods']);
 Route::get('/anomalies', [DashboardController::class, 'anomalies']);
 Route::get('/release-timeline', [DashboardController::class, 'releaseTimeline']);
 Route::get('/month-over-month', [DashboardController::class, 'monthOverMonth']);
+
+// Проекты
+Route::get('/projects', [ProjectController::class, 'index']);
+Route::post('/projects', [ProjectController::class, 'store']);
+Route::put('/projects/{project}', [ProjectController::class, 'update']);
+Route::delete('/projects/{project}', [ProjectController::class, 'destroy']);
 
 // Импорт
 Route::post('/import/sprints', [ImportController::class, 'importSprints']);

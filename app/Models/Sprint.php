@@ -9,7 +9,7 @@ class Sprint extends Model
 {
     protected $fillable = [
         'name', 'start_date', 'end_date', 
-        'story_points', 'tasks_completed', 'tasks_total'
+        'story_points', 'tasks_completed', 'tasks_total', 'project_id'
     ];
 
     protected $casts = [
@@ -22,6 +22,11 @@ class Sprint extends Model
         return $this->hasMany(Task::class);
     }
 
+    public function project()
+    {
+        return $this->belongsTo(Project::class);
+    }
+
     public static function averageVelocity(int $lastSprints = 5): float
     {
         $sprints = self::orderBy('id', 'desc')
@@ -29,7 +34,9 @@ class Sprint extends Model
             ->where('story_points', '>', 0)
             ->get();
 
-        if ($sprints->isEmpty()) return 0;
+        if ($sprints->isEmpty()) {
+            return 0;
+        }
 
         return $sprints->avg('story_points');
     }
@@ -37,7 +44,9 @@ class Sprint extends Model
     public static function forecastSprints(int $remainingPoints, int $lastSprints = 5): float
     {
         $velocity = self::averageVelocity($lastSprints);
-        if ($velocity <= 0) return 0;
+        if ($velocity <= 0) {
+            return 0;
+        }
         return round($remainingPoints / $velocity, 1);
     }
 }

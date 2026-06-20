@@ -5,8 +5,25 @@ export default function Filters({ onFilterChange, initialPeriod = '6', initialPr
     const { isDark } = useTheme();
     const [period, setPeriod] = useState(initialPeriod);
     const [project, setProject] = useState(initialProject);
+    const [projects, setProjects] = useState([]);
+    const [loadingProjects, setLoadingProjects] = useState(true);
 
-    // Синхронизация с пропсами
+    useEffect(() => {
+        fetchProjects();
+    }, []);
+
+    const fetchProjects = async () => {
+        try {
+            const response = await fetch('/api/projects');
+            const data = await response.json();
+            setProjects(data.projects || []);
+        } catch (error) {
+            console.error('Ошибка загрузки проектов:', error);
+        } finally {
+            setLoadingProjects(false);
+        }
+    };
+
     useEffect(() => {
         setPeriod(initialPeriod);
         setProject(initialProject);
@@ -19,11 +36,10 @@ export default function Filters({ onFilterChange, initialPeriod = '6', initialPr
         { value: 'all', label: 'Всё время' },
     ];
 
-    const projects = [
+    // Строим список проектов с опцией "Все"
+    const projectOptions = [
         { value: 'all', label: 'Все проекты' },
-        { value: 'mobile', label: 'Мобильное приложение' },
-        { value: 'crm', label: 'CRM' },
-        { value: 'b2b', label: 'B2B Кабинет' },
+        ...projects.map(p => ({ value: p.key, label: p.name })),
     ];
 
     const handlePeriodChange = (value) => {
@@ -88,12 +104,17 @@ export default function Filters({ onFilterChange, initialPeriod = '6', initialPr
                             ? 'bg-[#1a1a2e] text-gray-300 border border-[#2a2a4a] hover:border-[#3a3a5a]' 
                             : 'bg-gray-100 text-gray-700 border border-gray-200 hover:border-gray-300'
                     }`}
+                    disabled={loadingProjects}
                 >
-                    {projects.map(p => (
-                        <option key={p.value} value={p.value}>
-                            {p.label}
-                        </option>
-                    ))}
+                    {loadingProjects ? (
+                        <option>Загрузка...</option>
+                    ) : (
+                        projectOptions.map(p => (
+                            <option key={p.value} value={p.value}>
+                                {p.label}
+                            </option>
+                        ))
+                    )}
                 </select>
             </div>
 

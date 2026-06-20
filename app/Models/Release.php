@@ -22,5 +22,10 @@ class Release extends Model
 
         $clean = self::where('post_release_bugs', 0)->count();
         return round(($clean / $total) * 100, 1);
+
+    }
+    public function project()
+    {
+        return $this->belongsTo(Project::class);
     }
 }
